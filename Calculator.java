@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-class Calculator extends JFrame 
+public class Calculator extends JFrame 
 {
     //================================================================ constants
     private static final Font BIGGER_FONT = new Font("monspaced", Font.PLAIN, 20);   
@@ -11,10 +11,11 @@ class Calculator extends JFrame
     private JTextField displayField;       // display result / input.
     //... Variables representing state of the calculator
     private boolean   startNumber = true;      // true: num key next
-    private String    previousOp  = "=";       // previous operation
-    private CalcLogic logic = new CalcLogic(); // The internal calculator.
+    private String    previousOp = "+";       // previous operation
+    private CalcLogic logic = new CalcLogic(); // The internal calculator contains all the functionality for the calculator logic and the memmory functions
     
-    //============================================================== method main
+    //==================
+    //============================================ method main
    
     public static void main(String[] args)
     {
@@ -38,7 +39,7 @@ class Calculator extends JFrame
     public Calculator()
     {
         //... Set attributes of the display field
-        displayField = new JTextField("0", 12);
+        displayField = new JTextField("", 12);
         displayField.setHorizontalAlignment(JTextField.RIGHT);
         displayField.setFont(BIGGER_FONT);
         
@@ -52,9 +53,17 @@ class Calculator extends JFrame
         
         //... Layout numeric keys in a grid.  Generate the buttons
         //    in a loop from the chars in a string.
-        String buttonOrder = "789456123 0 ";
+        
+    //  String buttonOrder = "123456789.0 ";//ORIGINAL DO NOT MESS WITH       
+        String buttonOrder = "   123456789.0 ";
+        
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(5, 3, 2, 2));
+        
+       // buttonPanel.setLayout(new GridLayout(5, 3, 2, 2));    original 
+       
+        
+        buttonPanel.setLayout(new GridLayout(5,5,2,2));/// play with 
+        
         for (int i = 0; i < buttonOrder.length(); i++)
         	{
 	            String keyTop = buttonOrder.substring(i, i+1);
@@ -79,8 +88,13 @@ class Calculator extends JFrame
         //... Create panel with grid layout to hold operator buttons.
         //    Use array of button names to create buttons in a loop.
         JPanel opPanel = new JPanel();
+        
+      
         opPanel.setLayout(new GridLayout(5, 1, 2, 2));
-        String[] opOrder = {"+", "-", "*", "/", "="};
+        
+        String[] opOrder = {"+", "-", "*", "/","%","x²","%","MC","MR","MS","M+","M-","="};
+       
+        
         for (int i = 0; i < opOrder.length; i++)
         {
             JButton b = new JButton(opOrder[i]);
@@ -96,11 +110,12 @@ class Calculator extends JFrame
         
         // Layout the top-level content panel.
         JPanel content = new JPanel();
-        content.setLayout(new BorderLayout(5, 5));
-        content.add(displayField, BorderLayout.NORTH );
+        content.setLayout(new BorderLayout(6, 6));
+       content.add(displayField, BorderLayout.NORTH );
         content.add(buttonPanel   , BorderLayout.CENTER);
         content.add(opPanel       , BorderLayout.EAST  );
         content.add(clearPanel    , BorderLayout.SOUTH );
+        
         
         content.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         
@@ -112,15 +127,11 @@ class Calculator extends JFrame
         this.setLocationRelativeTo(null);
     }//end constructor
     
-    
-    //=== actionClear
-    /*		 Called by Clear button action listener and elsewhere							*/
     private void actionClear() 
     {
         startNumber = true;         // Expecting number, not op.
-        displayField.setText("0");
-        previousOp  = "=";
-        logic.setTotal("0");
+        displayField.setText("");
+      
     }
     
     //////////////////////////////////////////// inner listener class OpListener
@@ -132,83 +143,100 @@ class Calculator extends JFrame
             // The calculator is always in one of two states.
             // 1. A number must be entered -- an operator is wrong.
             // 2. An operator must be entered.
-        	// if you enter an operator first the system will out put that there is and error
-        	// 
-            if (startNumber)
-            { // Error: needed number, not operator
-                //... In this state we're expecting a number, but got an operator.
-                actionClear();
-                displayField.setText("ERROR - No operator");
-            }
-            else
-            {
+        	// if you enter an operator first the system will out put that there is and error and you will have to clear the calculor to restart the calc for use 
+       
+        
                 //... We're expecting an operator.
-                startNumber = true;  // Next thing must be a number
+                 // Next thing must be a number
                 try
 	                {
 	                    // Get value from display field, convert, do prev op
 	                    // If this is the first op, previousOp will be =.
 	                    String displayText = displayField.getText();
+	                    String Sign = e.getActionCommand();
+	                    if (Sign =="+")
+		                    {
+	                    		displayField.setText(displayText + "+");
+		                    } 
 	                    
-	                    if (previousOp.equals("="))
+	                    else if (Sign =="-") 
+                    	{
+	                    	displayField.setText(displayText + "-");             
+                    	}
+	                    
+	                    else if (Sign =="*")
 		                    {
-		                        logic.setTotal(displayText);
+	                    	displayField.setText(displayText + "*");
 		                    } 
-	                    else if (previousOp.equals("+"))
+	                    
+	                    else if (Sign =="/") 
 		                    {
-		                        logic.add(displayText);
-		                    } 
-	                    else if (previousOp.equals("-")) 
-		                    {
-		                        logic.subtract(displayText);
+	                    		displayField.setText(displayText + "/");
 		                    }
-	                    else if (previousOp.equals("*")) 
-		                    {
-		                        logic.multiply(displayText);
-		                    } 
-	                    else if (previousOp.equals("/")) 
-		                    {
-		                        logic.divide(displayText);
-		                    }
-	                    else if (previousOp.equals("^")) 
-	                    	{
-	                    		logic.square(displayText);
-	                    	}
+	                    else if (Sign =="=") 
+	                    {
+	                    	displayField.setText( logic.Evaluate(displayText));	                    	
+	                    	
+	                    }
+	                    else if (Sign =="MC") 
+                    	{
+                    		logic.ResetStoredVal();
+                    	}
+                    
+                    else if (Sign =="MS")
+                    	{
+                    		
+                    		logic.Store(displayText);
+                    	}
+                    else if (Sign =="%") 
+	                	{
+	                		 displayField.setText(displayText + "%");
+	                	}
+                    else if (Sign =="x²") 
+	                	{
+	                    	logic.Square(displayText);
+	                		displayField.setText(displayText + "x²");
+	                	}
 	                    
-	                    displayField.setText("" + logic.getTotalString());
-	                    
-	                } 
+                    else if (Sign =="M+") 
+                    	{
+	                    //	displayField.setText( logic.PlusStoredVal(displayText));	         
+	                    //	logic.PlusStoredVal(displayText);
+                    	}
+                    
+                    else if (Sign =="M-") 
+                    	{
+                    	//	logic.MinusStoredVal(displayText);
+                    	}
+                    else if (Sign =="MR") 
+	                	{
+	                    	displayField.setText(Double.toString(logic.GetStoredVaL()));
+	                	}
+
+	                } // TRY ENDS HERE AS PERAMITERS ARE DONE
 	                catch (NumberFormatException ex)
 		                {
 		                    actionClear();
 		                    displayField.setText("Error");
 		                }
 	                
-	                //... set previousOp for the next operator.
-	                previousOp = e.getActionCommand();
-	            }//endif startNumber
+	              
 	        }//endmethod
 	    }//end class
 	    
 	    
 	    // inner listener class ClearListener
 	    /** Action listener for numeric keys */
-	    class NumListener implements ActionListener 
+	    private class NumListener implements ActionListener 
 		    {
 		        public void actionPerformed(ActionEvent e) 
 		        {
-		            String digit = e.getActionCommand(); // Get text from button
-		            if (startNumber) 
-			            {
-			                //... This is the first digit, clear field and set
-			                displayField.setText(digit);
-			                startNumber = false;
-			            } 
-		            else
-			            {
-			                //... Add this digit to the end of the display field
-			                displayField.setText(displayField.getText() + digit);
-			            }
+		            String digit = e.getActionCommand(); 
+		            // Get text from button
+		            String displayText = displayField.getText();
+			         //... This is the first digit, clear field and set
+			         displayField.setText(displayText + digit);
+			              
 		        }
 		    }
 	    
@@ -221,3 +249,6 @@ class Calculator extends JFrame
 		        }
 	    }
 }
+
+
+//https://www.youtube.com/watch?v=5fdqRQc_V9A
